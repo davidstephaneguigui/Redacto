@@ -15,7 +15,7 @@
                     <a href="{% url 'core:accueil' %}">RedacLo</a>
                 </h1>
                 {% if user.is_authenticated %}
-                    <div class="user-info-container">
+                    <div class="user-info-container" style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
                         <span class="user-greeting">
                             Bonjour {{ user.username }} <span class="user-role">({{ user.get_role_display }})</span>
                         </span>

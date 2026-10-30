@@ -85,10 +85,22 @@
     }
 
     /* --- 4. TABLEAUX EN CARTES (Choisir, Réserver) --- */
-    .table-responsive-cards { display: block !important; width: 100% !important; border: none !important; }
-    .table-responsive-cards thead { display: none !important; }
-    .table-responsive-cards tbody, .table-responsive-cards tr { display: block !important; width: 100% !important; }
+    .table-liste thead {
+        display: none !important;
+    }
     
+    .table-liste.table-responsive-cards {
+        display: block !important;
+        width: 100% !important;
+        border: none !important;
+    }
+    
+    .table-liste.table-responsive-cards tbody, 
+    .table-liste.table-responsive-cards tr, 
+    .table-liste.table-responsive-cards td {
+        display: block !important; 
+        width: 100% !important; 
+    }
     .table-responsive-cards tr {
         position: relative;
         margin-bottom: 1.5rem;
@@ -106,7 +118,8 @@
         flex-direction: column !important;
         align-items: flex-start !important;
         text-align: left !important;
-        padding: 0.6rem 0;
+        height: auto !important; 
+        padding: 0.4rem 0 !important;
         border-bottom: 1px solid #f0f0f0;
         width: 100%;
         box-sizing: border-box;
@@ -120,6 +133,7 @@
         font-size: 0.75rem;
         text-transform: uppercase;
         margin-bottom: 0;
+        display: none !important; /* <--- LA LIGNE MAGIQUE À AJOUTER */
     }
     
     .table-responsive-cards td * { word-break: normal; overflow-wrap: break-word; }
@@ -136,14 +150,40 @@
     }
     .table-responsive-cards td:first-child::before { display: none !important; }
 
+    
+    /* On force le titre à prendre toute la place et à s'aligner à gauche */
     .table-responsive-cards td[data-label="Titre"] {
         display: block !important;
-        text-align: left;
-        border-bottom: 2px solid #e0e0e0;
-        padding: 0 3rem 0.8rem 0 !important; 
+        text-align: left !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        padding: 0 0 1rem 2rem !important;
         margin-bottom: 0.5rem;
+        border-bottom: 2px solid #e0e0e0;
+        line-height: 1.3;
         font-size: 1.1rem;
     }
+
+    /* On s'assure que l'élément à l'intérieur (le span) ne se centre pas tout seul */
+    .table-responsive-cards td[data-label="Titre"] span,
+    .table-responsive-cards td[data-label="Titre"] div {
+        text-align: left !important;
+        display: block !important;
+        max-width: 20ch !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .table-responsive-cards td[data-label="Titre"] * {
+        text-align: left !important;
+        display: block !important;
+    }
+
     .table-responsive-cards td[data-label="Titre"]::before { display: none !important; }
 
     .table-responsive-cards td[data-label="Action"] {
