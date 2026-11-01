@@ -9,7 +9,6 @@ from django.core.exceptions import ValidationError
 
 import re
 
-
 class ArticleForm(forms.ModelForm):
     class Meta:
         model = Article
@@ -24,8 +23,7 @@ class ArticleForm(forms.ModelForm):
         
         # Optionnel : on peut ajouter un texte "facultatif" à côté du label
         self.fields['sur_titre'].label = "Sur-titre (facultatif)"
-        self.fields['rubrique'].label = "Rubrique (facultatif)"
-        
+        self.fields['rubrique'].label = "Rubrique (facultatif)"    
 
 class ArticleVersionForm(forms.ModelForm):
     """
@@ -93,9 +91,7 @@ class ArticleVersionForm(forms.ModelForm):
         
         return texte_propre
 
-
 User = get_user_model()
-
 
 class ArticlePublicForm(forms.Form):
     # Champs de l'article
@@ -122,7 +118,6 @@ class ArticlePublicForm(forms.Form):
         label="Informations pour la rédaction (facultatif)"
     )
 
-
 class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
@@ -144,12 +139,19 @@ class ImageForm(forms.ModelForm):
         fichier = cleaned_data.get('fichier')
         droits_ok = cleaned_data.get('droits_ok')
         est_prise_par_redacteur = cleaned_data.get('est_prise_par_redacteur')
+        
+        # On récupère la légende
+        legende = cleaned_data.get('legende')
 
+        # 1. Vérification des droits sur l'image
         if fichier and not droits_ok and not est_prise_par_redacteur:
             raise ValidationError("Vous devez soit cocher 'C'est bien moi qui ai pris cette photo', soit certifier que vous avez les droits d'utilisation.")
         
+        # 2. Vérification de la légende
+        if fichier and not legende:
+            self.add_error('legende', "La légende est obligatoire. Elle permet de situer l'image dans le journal.")
+        
         return cleaned_data
-
 
 # On crée le formset APRÈS avoir défini ImageForm
 ImageFormSet = inlineformset_factory(

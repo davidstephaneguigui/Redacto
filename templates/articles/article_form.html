@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block titre %}{{ titre }} — RedacLo{% endblock %}
 
 {% block contenu %}
     <h2>{{ titre }}</h2>
 
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" id="form-article">
         {% csrf_token %}
         
         <!-- Les champs du formulaire -->       
@@ -71,8 +73,14 @@
                     
                     <!-- LIGNE 2 : Légende -->
                     <div style="margin-bottom: 0.8rem;">
+                        {{ formset.non_form_errors }}
                         {{ image_form.legende.label_tag }} 
                         {{ image_form.legende }}
+                        {% if image_form.legende.errors %}
+                            <div style="color: #dc2626; font-size: 0.85rem; margin-top: 0.2rem;">
+                                {{ image_form.legende.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     
                     <!-- LIGNE 3 : Case photo prise par l'auteur -->
@@ -128,54 +136,6 @@
             {% endif %}
         </div>
     </form>
-{% endblock %}
 
-{% block scripts %}
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const blocsImages = document.querySelectorAll(".image-form-block");
-
-            blocsImages.forEach(function(bloc) {
-                // On récupère les IDs dynamiques générés par Django
-                const inputFichier = bloc.querySelector('input[type="file"]');
-                const checkAuteur = bloc.querySelector('input[name$="-est_prise_par_auteur"]');
-                const checkDroits = bloc.querySelector('input[name$="-droits_ok"]');
-                const alerte = bloc.querySelector(".alerte-droits");
-                const fileDisplay = bloc.querySelector(".file-name-display"); // NOUVEAU : pour le nom du fichier
-
-                if (inputFichier) {
-                    
-                    // 1. GESTION DU NOM DU FICHIER
-                    if (fileDisplay) {
-                        inputFichier.addEventListener("change", function() {
-                            if (inputFichier.files.length > 0) {
-                                fileDisplay.textContent = inputFichier.files[0].name;
-                                fileDisplay.style.color = "var(--c-text)";
-                                fileDisplay.style.fontStyle = "normal";
-                            } else {
-                                fileDisplay.textContent = "Aucun fichier sélectionné";
-                                fileDisplay.style.color = "var(--c-text-muted)";
-                                fileDisplay.style.fontStyle = "italic";
-                            }
-                        });
-                    }
-
-                    // 2. GESTION DE L'ALERTE DES DROITS
-                    if (checkAuteur && checkDroits && alerte) {
-                        function verifierDroits() {
-                            if (inputFichier.files.length > 0 && !checkAuteur.checked && !checkDroits.checked) {
-                                alerte.style.display = "block";
-                            } else {
-                                alerte.style.display = "none";
-                            }
-                        }
-
-                        checkAuteur.addEventListener("change", verifierDroits);
-                        checkDroits.addEventListener("change", verifierDroits);
-                        inputFichier.addEventListener("change", verifierDroits);
-                    }
-                }
-            });
-        });
-    </script>
+    <script src="{% static 'js/article_form.js' %}" defer></script>
 {% endblock %}
