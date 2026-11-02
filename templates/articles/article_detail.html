@@ -31,12 +31,29 @@
 
     <hr style="border: 0; border-top: 1px solid var(--c-border); margin: 1.5rem 0;">
 
-    <!-- CONTENU DU TEXTE -->
-    <div class="texte-article-simple">
-        {% for paragraphe in texte_affiche %}
-            <p>{{ paragraphe|typographier }}</p>
-        {% endfor %}
-    </div>
+        <!-- AFFICHAGE DES IMAGES -->
+        {% if article.images.exists %}
+            <div style="margin-bottom: 2rem;">
+                {% for img in article.images.all %}
+                    <figure style="margin: 0 0 1.5rem 0; text-align: center;">
+                        <img src="{{ img.fichier.url }}" alt="{{ img.legende|default:'Image de l\'article' }}" style="max-width: 100%; max-height: 500px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: contain;">
+                        
+                        {% if img.legende %}
+                            <figcaption style="margin-top: 0.5rem; font-size: 0.9rem; color: #666; font-style: italic;">
+                                {{ img.legende }}
+                            </figcaption>
+                        {% endif %}
+                    </figure>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- CONTENU DU TEXTE -->
+        <div class="texte-article-simple">
+            {% for paragraphe in texte_affiche %}
+                <p>{{ paragraphe|typographier }}</p>
+            {% endfor %}
+        </div>
 
     <!-- RELECTURES (S'IL Y EN A) -->
     {% if reviews %}
