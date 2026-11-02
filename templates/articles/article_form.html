@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block titre %}{{ titre }} — RedacLo{% endblock %}
+{% block titre %}{{ titre }} — Redacto{% endblock %}
 
 {% block contenu %}
     <h2>{{ titre }}</h2>
@@ -41,43 +41,55 @@
             {{ form.contenu.errors }}
         </div>
 
+        <!-- ========================================== -->
+        <!-- SECTION IMAGES                    -->
+        <!-- ========================================== -->
         <div style="margin-top: 2rem; border-top: 1px solid var(--c-border); padding-top: 1rem;">
-            <h3>Images (optionnel)</h3>
+            <h3 style="margin-top: 0; font-size: 1.1rem; color: #333;">Images (optionnel)</h3>
+            
+            <!-- Le management_form est OBLIGATOIRE et ne doit apparaître qu'UNE SEULE FOIS -->
             {{ formset.management_form }}
+            
+            <!-- Affichage des erreurs globales du formset (s'il y en a) -->
+            {{ formset.non_form_errors }}
 
             {% for image_form in formset %}
-                <div class="image-form-block" style="background: var(--c-surface-alt); padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
-                    {{ image_form.id }}
+                <div class="image-form-block" style="background: var(--c-surface-alt); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                    
+                    <!-- Champs cachés (dont l'ID de l'image) -->
+                    {% for hidden in image_form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
                     
                     <!-- LIGNE 1 : Fichier avec son label -->
-                        <div style="margin-bottom: 1rem;">
-                            <label style="display: block; margin-bottom: 0.3rem;">{{ image_form.fichier.label_tag }}</label>
-                            
-                            <div class="custom-file-upload">
-                                <!-- Le vrai champ caché -->
-                                <div style="display: none;">
-                                    {{ image_form.fichier }}
-                                </div>
-                                
-                                <!-- Le faux bouton stylisé -->
-                                <label for="{{ image_form.fichier.id_for_label }}" class="btn btn-secondary btn-sm" style="cursor: pointer;">
-                                    📁 Choisir une image
-                                </label>
-                                
-                                <!-- Le texte qui affichera le nom du fichier -->
-                                <span class="file-name-display" style="color: var(--c-text-muted); font-size: 0.85rem; margin-left: 0.5rem; font-style: italic;">
-                                    Aucun fichier sélectionné
-                                </span>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.3rem;">Image :</label>
+                        
+                        <div class="custom-file-upload" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <!-- Le vrai champ caché -->
+                            <div style="display: none;">
+                                {{ image_form.fichier }}
                             </div>
+                            
+                            <!-- Le faux bouton stylisé -->
+                            <label for="{{ image_form.fichier.id_for_label }}" class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0;">
+                                📁 Choisir une image
+                            </label>
+                            
+                            <!-- Le texte qui affichera le nom du fichier -->
+                            <span class="file-name-display" style="color: var(--c-text-muted); font-size: 0.85rem; margin-left: 0.5rem; font-style: italic;">
+                                Aucun fichier sélectionné
+                            </span>
                         </div>
+                        {{ image_form.fichier.errors }}
+                    </div>
                     
                     <!-- LIGNE 2 : Légende -->
                     <div style="margin-bottom: 0.8rem;">
-                        {{ formset.non_form_errors }}
                         {{ image_form.legende.label_tag }} 
                         {{ image_form.legende }}
                         {% if image_form.legende.errors %}
-                            <div style="color: #dc2626; font-size: 0.85rem; margin-top: 0.2rem;">
+                            <div style="color: var(--c-danger); font-size: 0.85rem; margin-top: 0.2rem;">
                                 {{ image_form.legende.errors.0 }}
                             </div>
                         {% endif %}
@@ -104,7 +116,7 @@
                         ⚠️ Attention : nous n'avons pas la certitude que nous pouvons utiliser cette photo. Il est préférable de ne pas la charger.
                     </div>
 
-                    <!-- LIGNE 6 : Suppression -->
+                    <!-- LIGNE 6 : Suppression (si l'image existe déjà) -->
                     {% if image_form.DELETE %}
                         <div style="margin-top: 1rem; display: flex; align-items: center; gap: 0.6rem;">
                             {{ image_form.DELETE }} 
@@ -116,9 +128,9 @@
                 </div>
             {% endfor %}
         </div>
-        
+
         <!-- Les boutons d'action -->
-        <div class="form-actions" style="margin-top: 2rem;">
+        <div class="form-actions" style="margin-top: 2rem; display: flex; align-items: center; gap: 1rem;">
             <button type="submit" class="btn btn-primary">Enregistrer</button>
             
             <!-- Bouton Annuler : renvoie vers l'article si on modifie, sinon vers la liste -->

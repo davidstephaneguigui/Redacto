@@ -43,8 +43,8 @@
     {% if version %}
         <h3>Version v{{ version.numero }} ({{ version.get_type_display }})</h3>
         <p class="meta-version">
-            {% if version.auteur_modification %}
-                Par {{ version.auteur_modification.username }} —
+            {% if version.modifie_par %}
+                Par {{ version.modifie_par.username }} —
             {% endif %}
             le {{ version.date|date:"d/m/Y à H:i" }}
              — <span class="statut-{{ version.statut }}">{{ version.get_statut_display }}</span>
@@ -65,27 +65,35 @@
             <p><em>Commentaire : {{ version.commentaire }}</em></p>
         {% endif %}
 
-        <!-- AFFICHAGE DES IMAGES -->
-        {% if article.images.exists %}
-            <div style="margin-bottom: 2rem;">
+        <!-- ZONE DE TEXTE AVEC FLEXBOX -->
+        <div class="texte-version" style="display: flex; gap: 1.5rem; align-items: flex-start; padding: 1rem; background: #f9f9f9; border-radius: 8px;">
+            
+            <!-- L'image à gauche -->
+            {% if article.images.exists %}
                 {% for img in article.images.all %}
-                    <figure style="margin: 0 0 1.5rem 0; text-align: center;">
-                        <img src="{{ img.fichier.url }}" alt="{{ img.legende|default:'Image de l\'article' }}" style="max-width: 100%; max-height: 400px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); object-fit: contain;">
+                    <figure style="flex: 0 0 35%; max-width: 300px; margin: 0; text-align: center;">
+                        <img src="{{ img.fichier.url }}" alt="Image de l'article" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: block;">
                         
                         {% if img.legende %}
-                            <figcaption style="margin-top: 0.5rem; font-size: 0.9rem; color: #666; font-style: italic;">
+                            <figcaption style="margin-top: 0.5rem; font-size: 0.85rem; color: #666; font-style: italic; line-height: 1.2;">
                                 {{ img.legende }}
                             </figcaption>
                         {% endif %}
                     </figure>
                 {% endfor %}
+            {% endif %}
+            
+            <!-- Le texte à droite (identique pour les 2 modes) -->
+            <div style="flex: 1; min-width: 0;">
+                {% if mode == "diff" %}
+                    <div style="white-space: pre-wrap; text-align: justify; text-indent: 6pt; line-height: 1.5;">{{ texte_affiche|safe }}</div>
+                {% else %}
+                    <div style="white-space: pre-wrap; text-align: justify; text-indent: 6pt; line-height: 1.5;">{{ texte_affiche }}</div>
+                {% endif %}
             </div>
-        {% endif %}
+            
+        </div>
 
-        <div class="texte-version">{{ texte_affiche|safe }}</div>
-
-
-        <div class="texte-version">{{ texte_affiche|safe }}</div>
     {% else %}
         <p><em>Aucune version disponible pour cet article.</em></p>
     {% endif %}

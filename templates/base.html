@@ -3,7 +3,7 @@
 <html lang="fr">
     <head>
         <meta charset="UTF-8">
-        <title>{% block titre %}RedacLo{% endblock %}</title>
+        <title>{% block titre %}Redacto{% endblock %}</title>
         <link rel="stylesheet" href="{% static 'css/main.css' %}">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
@@ -12,7 +12,7 @@
             <!-- Ligne du haut : Titre et message de bienvenue -->
             <div class="header-top">
                 <h1 class="site-title">
-                    <a href="{% url 'core:accueil' %}">RedacLo</a>
+                    <a href="{% url 'core:accueil' %}">Redacto</a>
                 </h1>
                 {% if user.is_authenticated %}
                     <div class="user-info-container" style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
@@ -43,7 +43,9 @@
                 <div class="nav-left" id="nav-links">
                     <a href="{% url 'core:accueil' %}" class="btn btn-ghost {% if request.resolver_match.url_name == 'accueil' %}active{% endif %}">Accueil</a>
                     <a href="{% url 'articles:mes_articles' %}" class="btn btn-ghost {% if request.resolver_match.url_name == 'mes_articles' %}active{% endif %}">Articles</a>
-                    
+                    {% if user.role == "editeur" or user.role == "membre_redaction" or user.role == "admin" %}
+                        <a href="{% url 'articles:dossier_images' %}" class="btn btn-ghost {% if request.resolver_match.url_name == 'dossier_images' %}active{% endif %}">Images</a>
+                    {% endif %}        
                     {% if user.role == "editeur" or user.role == "membre_redaction" or user.role == "admin" %}
                         <a href="{% url 'reviews:a_relire' %}" class="btn btn-ghost {% if request.resolver_match.url_name == 'a_relire' %}active{% endif %}">Relire</a>
                         <a href="{% url 'publications:choisir' %}" class="btn btn-ghost {% if request.resolver_match.url_name == 'choisir' %}active{% endif %}">Choisir</a>
@@ -55,12 +57,12 @@
                 </div>
             </nav>
 
-        <!-- Affichage des messages d'erreur et de succès -->
+        <!-- Affichage des messages d'erreur et de succès (Style Toast) -->
         {% if messages %}
-            <div style="padding: 0 2rem; margin-top: 1rem;">
+            <div style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 400px;">
                 {% for message in messages %}
                     <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" 
-                        style="padding: 1rem; border-radius: 4px; margin-bottom: 1rem; 
+                        style="padding: 1rem; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                                 background-color: {% if message.tags == 'error' %}#ffebee{% elif message.tags == 'success' %}#e8f5e9{% else %}#e3f2fd{% endif %}; 
                                 color: {% if message.tags == 'error' %}#c62828{% elif message.tags == 'success' %}#2e7d32{% else %}#1565c0{% endif %}; 
                                 border: 1px solid {% if message.tags == 'error' %}#f44336{% elif message.tags == 'success' %}#4caf50{% else %}#2196f3{% endif %};">
@@ -68,7 +70,21 @@
                     </div>
                 {% endfor %}
             </div>
-        {% endif %}    
+            
+            <!-- Script pour faire disparaître les messages après 5 secondes -->
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    setTimeout(function() {
+                        const toasts = document.querySelectorAll('.alert');
+                        toasts.forEach(function(toast) {
+                            toast.style.transition = "opacity 0.5s ease";
+                            toast.style.opacity = "0";
+                            setTimeout(() => toast.remove(), 500);
+                        });
+                    }, 5000); // 5 secondes
+                });
+            </script>
+        {% endif %} 
 
         <main class="{% block main_class %}{% endblock %}">
             {% block contenu %}{% endblock %}

@@ -455,10 +455,17 @@ class Annotation(models.Model):
 class Image(models.Model):
     TAILLES = [
         ("petite", "Petite"),
+        ("moyenne", "Moyenne"),
         ("grande", "Grande"),
     ]
 
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="images")
+    article = models.ForeignKey(
+        Article, 
+        on_delete=models.CASCADE, 
+        related_name="images",
+        null=True, 
+        blank=True
+    )
     fichier = models.ImageField(upload_to="articles/images/")
     legende = models.CharField(max_length=255, blank=True)
     
@@ -494,4 +501,6 @@ class Image(models.Model):
     )
 
     def __str__(self):
-        return f"Image pour {self.article.titre} ({self.taille})"
+        if self.article:
+            return f"Image pour {self.article.titre} ({self.get_taille_display()})"
+        return f"Image libre ({self.get_taille_display()}) - {self.legende[:30] if self.legende else 'Sans légende'}"

@@ -60,6 +60,7 @@ class Page(models.Model):
     
     # Deux champs pour les illustrations
     petites_illustrations = models.PositiveIntegerField(default=0)
+    moyennes_illustrations = models.PositiveBigIntegerField(default=0)
     grandes_illustrations = models.PositiveIntegerField(default=0)
 
     # Lien vers le gabarit
@@ -92,13 +93,14 @@ class Page(models.Model):
             return 6000
 
         p = self.petites_illustrations
+        m = self.moyennes_illustrations
         g = self.grandes_illustrations
         
-        # Calcul de la limite (7500 de base - 500 par petite - 800 par grande)
-        limite = 7500 - (500 * p) - (800 * g)
+        # Calcul de la limite (7500 de base - 500 par petite - 800 par moyenne - 1500 par grande)
+        limite = 7500 - (500 * p) - (800 * m) - (1500 * g)
         
-        # Sécurité : on ne descend jamais en dessous de 5700
-        return max(5700, limite)
+        # Sécurité : on ne descend jamais en dessous de 5500
+        return max(5500, limite)
 
 
     @property

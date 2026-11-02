@@ -176,8 +176,11 @@
                                     <label style="margin: 0;">Petite :</label>
                                     <input type="number" name="petites" min="0" max="3" value="{{ page.petites_illustrations }}" style="width: 35px; padding: 1px; border: 1px solid #ccc; text-align: center;">
                                     
+                                    <label style="margin: 0;">Moyenne :</label>
+                                    <input type="number" name="moyennes" min="0" max="2" value="{{ page.moyennes_illustrations }}" style="width: 35px; padding: 1px; border: 1px solid #ccc; text-align: center;">
+                                    
                                     <label style="margin: 0; margin-left: 0.5rem;">Grande :</label>
-                                    <input type="number" name="grandes" min="0" max="2" value="{{ page.grandes_illustrations }}" style="width: 35px; padding: 1px; border: 1px solid #ccc; text-align: center;">
+                                    <input type="number" name="grandes" min="0" max="1" value="{{ page.grandes_illustrations }}" style="width: 35px; padding: 1px; border: 1px solid #ccc; text-align: center;">
                                 </div>
                             </div>
 
@@ -301,6 +304,14 @@
                                                     </div>
                                                 </div>
                                             {% endwith %}
+
+                                        {% else %}
+                                            <!-- Bouton pour ajouter une image si l'article n'en a pas -->
+                                            <div style="background: #fff; border: 1px dashed #ccc; padding: 0.4rem; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                                <a href="{% url 'articles:dossier_images' %}?article_id={{ article.pk }}" class="btn btn-sm btn-secondary" style="font-size: 0.75rem;">
+                                                    ➕ Ajouter une image
+                                                </a>
+                                            </div>
                                         {% endif %}
 
                                         <!-- LIGNE 3 : Nombre de signes + Début/Fin + Croix -->

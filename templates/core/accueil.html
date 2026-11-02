@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block titre %}Accueil — RedacLo{% endblock %}
+{% block titre %}Accueil — Redacto{% endblock %}
 
 {% block contenu %}
     
     {% if user.is_authenticated %}
 
         <!-- 1. BLOC POUR LES UTILISATEURS CONNECTÉS    -->
-        <h2>Bienvenue sur RedacLo</h2>
+        <h2>Bienvenue sur Redacto</h2>
         <p>Vous êtes connecté en tant que <b>{{ user.username }}</b> ({{ user.get_role_display }}).</p>
 
         <!-- Présentation selon le rôle -->
@@ -41,10 +41,10 @@
         <!-- 2. BLOC POUR LES VISITEURS NON CONNECTÉS   -->
      
         <div style="text-align: center; margin: 3rem 0;">
-            <h2 style="color: var(--c-primary);">Bienvenue sur RedacLo</h2>
+            <h2 style="color: var(--c-primary);">Bienvenue sur Redacto</h2>
             <p style="margin-bottom: 2rem; color: var(--c-text-muted); font-size: 1.1rem;">
                 Vous souhaitez nous proposer un texte ? <br>
-                Pas besoin de créer un compte à l'avance, remplissez simplement le formulaire.
+                Pas besoin de créer un compte, remplissez simplement le formulaire de proposition.
             </p>
             
             <a href="{% url 'articles:soumettre_public' %}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">

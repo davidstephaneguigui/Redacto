@@ -19,25 +19,51 @@
         séparément : le texte de la version de départ restera intact.
     </p>
 
-        <form method="post">
-        {% csrf_token %}
-
-        <div class="champ-version">
-            <label for="{{ form.contenu.id_for_label }}">Texte de la version :</label>
-            {{ form.contenu }}
-            {% if form.contenu.errors %}
-                <div class="erreur">{{ form.contenu.errors }}</div>
+    <div style="display: flex; gap: 2rem; align-items: flex-start; margin-top: 1rem;">
+        
+        <!-- COLONNE GAUCHE : L'IMAGE -->
+        <div style="flex: 0 0 300px; position: sticky; top: 1rem;">
+            {% if article.images.exists %}
+                {% for img in article.images.all %}
+                    <figure style="margin: 0; text-align: left;">
+                        <img src="{{ img.fichier.url }}" alt="Image de l'article" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        
+                        {% if img.legende %}
+                            <figcaption style="margin-top: 0.5rem; font-size: 0.85rem; color: #666; font-style: italic; line-height: 1.2;">
+                                {{ img.legende }}
+                            </figcaption>
+                        {% endif %}
+                    </figure>
+                {% endfor %}
+            {% else %}
+                <p style="color: #999; font-style: italic;">Aucune image pour cet article.</p>
             {% endif %}
         </div>
 
-        <div class="champ-version">
-            <label for="{{ form.commentaire.id_for_label }}">Commentaire (facultatif) :</label>
-            {{ form.commentaire }}
+        <!-- COLONNE DROITE : LE FORMULAIRE -->
+        <div style="flex-grow: 1; min-width: 0;">
+            <form method="post" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                {% csrf_token %}
+                
+                <div class="champ-version">
+                    <label for="{{ form.contenu.id_for_label }}">Texte de la version :</label>
+                    {{ form.contenu }}
+                    {% if form.contenu.errors %}
+                        <div class="erreur">{{ form.contenu.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="champ-version">
+                    <label for="{{ form.commentaire.id_for_label }}">Commentaire (facultatif) :</label>
+                    {{ form.commentaire }}
+                </div>
+                
+                <div>
+                    <button type="submit" class="btn btn-primary">Créer ma version</button>
+                    <a href="{% url 'articles:annoter_article' article.pk %}" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
         </div>
 
-        <p>
-            <button type="submit">Créer ma version</button>
-            <a href="{% url 'articles:annoter_article' article.pk %}">Annuler</a>
-        </p>
-    </form>
+    </div>
 {% endblock %}

@@ -27,4 +27,7 @@ urlpatterns = [
     path("merci-soumission/", views.merci_soumission, name="merci_soumission"),
     path("<int:pk>/ajouter-image/", views.ajouter_image, name="ajouter_image"),
     path("<int:pk>/annuler-validation-1/", views.annuler_validation_1, name="annuler_validation_1"),
+    path("images/", views.dossier_images, name="dossier_images"),
+    path("images/associer/", views.associer_image, name="associer_image"),
+    path("images/<int:image_id>/retirer/", views.retirer_image_article, name="retirer_image_article"),
 ]

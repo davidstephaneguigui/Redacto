@@ -11,7 +11,7 @@ from accounts.models import User
 from core.utils import creer_notification
 from core.models import Notification
 from ..forms import ArticleForm, ImageForm, ImageFormSet
-from ..models import Article, ArticleVersion
+from ..models import Article, ArticleVersion, Image
 
 User = get_user_model()
 
@@ -239,3 +239,74 @@ def annuler_soumission(request, pk):
         messages.success(request, "La soumission a été annulée. L'article est de retour en brouillon.")
         
     return redirect("articles:mes_articles")
+
+@role_required("editeur", "membre_redaction", "admin")
+def dossier_images(request):
+    # 1. On récupère le terme de recherche (s'il existe)
+    query = request.GET.get("q", "").strip()
+    
+    # 2. On prépare les requêtes de base
+    images_libres = Image.objects.filter(article__isnull=True)
+    images_utilisees = Image.objects.filter(article__isnull=False)
+    
+    # 3. Si l'utilisateur a tapé quelque chose, on filtre sur la légende (le "scraping")
+    if query:
+        images_libres = images_libres.filter(legende__icontains=query)
+        images_utilisees = images_utilisees.filter(legende__icontains=query)
+    
+    # 4. On trie par date
+    images_libres = images_libres.order_by('-date_creation')
+    images_utilisees = images_utilisees.order_by('-date_creation')
+    
+    article_id = request.GET.get("article_id")
+    article_cible = None
+    if article_id:
+        article_cible = get_object_or_404(Article, pk=article_id)
+    
+    return render(request, "articles/dossier_images.html", {
+        "images_libres": images_libres,
+        "images_utilisees": images_utilisees,
+        "article_cible": article_cible,
+        "query": query, # On transmet le mot recherché au template
+    })
+
+@role_required("editeur", "membre_redaction", "admin")
+@require_POST
+def associer_image(request):
+    image_id = request.POST.get("image_id")
+    article_id = request.POST.get("article_id")
+    
+    image = get_object_or_404(Image, pk=image_id)
+    article = get_object_or_404(Article, pk=article_id)
+    
+    # On associe l'image à l'article
+    image.article = article
+    image.avis_editeur = "favorable" # Puisqu'on l'a choisie, on considère qu'elle est validée
+    image.save()
+    
+    messages.success(request, f"L'image a été associée à l'article « {article.titre} ».")
+    
+    # On redirige vers l'article pour voir le résultat
+    return redirect("articles:detail_article", pk=article.pk)
+
+@role_required("redacteur", "editeur", "membre_redaction", "admin")
+@require_POST
+def retirer_image_article(request, image_id):
+    image = get_object_or_404(Image, pk=image_id)
+    article = image.article
+    
+    if not article:
+        messages.warning(request, "Cette image n'est pas liée à un article.")
+        return redirect("articles:mes_articles")
+
+    # Sécurité : Un rédacteur ne peut retirer une image que sur SON propre article
+    if request.user.role == "redacteur" and article.redacteur != request.user:
+        messages.error(request, "Vous ne pouvez pas modifier les images d'un article qui n'est pas le vôtre.")
+        return redirect("articles:mes_articles")
+        
+    # On détache l'image
+    image.article = None
+    image.save()
+    
+    messages.success(request, "L'image a été retirée de l'article et placée dans le dossier Images.")
+    return redirect("articles:detail_article", pk=article.pk)

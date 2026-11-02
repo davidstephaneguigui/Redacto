@@ -53,6 +53,7 @@ def composition_numero(request):
 
     # Formulaire classique
     petites = request.GET.get("petites")
+    moyennes = request.GET.get("moyennes")
     grandes = request.GET.get("grandes")
     rubrique = request.GET.get("rubrique")
 
@@ -64,12 +65,15 @@ def composition_numero(request):
         p = Page.objects.filter(pk=page_id).first()
         if p:
             val_p = int(petites) if petites else 0
+            val_m = int(moyennes) if moyennes else 0
             val_g = int(grandes) if grandes else 0
 
-            if val_p + val_g > 3 or val_g > 2:
-                messages.error(request, f"Règles non respectées pour la page {p.numero_page} : maximum 3 illustrations au total, dont 2 grandes maximum.")
+                        # Validation stricte côté serveur (ne pas se fier au HTML)
+            if val_p > 3 or val_m > 2 or val_g > 1 or (val_p + val_m + val_g) > 3:
+                messages.error(request, f"Règles non respectées pour la page {p.numero_page} : maximum 3 illustrations au total (dont 1 grande et 2 moyennes max).")
             else:
                 p.petites_illustrations = val_p
+                p.moyennes_illustrations = val_m
                 p.grandes_illustrations = val_g
                 if rubrique:
                     p.rubrique_id = rubrique
@@ -335,14 +339,25 @@ def modifier_avis_image(request, image_id):
 
     if nouvel_avis in ["favorable", "defavorable", "a_remplacer"]:
         image.avis_editeur = nouvel_avis
+        
+        # Si l'éditeur clique sur "Retirer" (defavorable), on détache l'image de l'article
+        if nouvel_avis == "defavorable":
+            image.article = None
+            
         if commentaire:
             image.commentaire_editeur = commentaire
         image.save()
-        messages.success(request, f"L'avis sur l'image de « {image.article.titre} » a été mis à jour.")
+        
+        # On adapte le message selon l'action
+        if nouvel_avis == "defavorable":
+            messages.info(request, "L'image a été retirée de l'article et placée dans le dossier Images.")
+        else:
+            messages.success(request, "L'avis sur l'image a été mis à jour.")
+            
     else:
         messages.error(request, "Avis invalide.")
 
-    # On redirige vers la page d'où l'on vient (le Chemin de fer)
+    # On redirige vers la page d'où l'on vient
     referer = request.META.get('HTTP_REFERER')
     if referer:
         return redirect(referer)
