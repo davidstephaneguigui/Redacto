@@ -1,10 +1,10 @@
-# 📰 RedacLO
+# 📰 Redacto
 
-**RedacLO** est une application web métier complète conçue pour gérer l'intégralité du cycle de vie d'un journal : de la rédaction des articles jusqu'à la mise en page finale, en passant par la relecture, la validation et la composition.
+**Redacto** est une application web métier complète conçue pour gérer l'intégralité du cycle de vie d'un journal : de la rédaction des articles jusqu'à la mise en page finale, en passant par la relecture, la validation et la composition.
 
 ## 🎯 Objectif du projet
 
-L'objectif de RedacLO est de fournir une plateforme centralisée pour une rédaction, permettant de :
+L'objectif de Redacto est de fournir une plateforme centralisée pour une rédaction, permettant de :
 - Gérer les rôles (Rédacteurs, Éditeurs, Administrateurs).
 - Suivre l'évolution des articles (versions, relectures, validations).
 - Composer le journal (Chemin de fer, attribution des articles aux pages).
@@ -44,8 +44,8 @@ Le projet est divisé en plusieurs applications, chacune ayant une responsabilit
 
 1. **Cloner le dépôt** :
     ```bash
-    git clone https://github.com/votre-nom/RedacLO.git
-    cd RedacLO
+    git clone https://github.com/votre-nom/Redacto.git
+    cd Redacto
 
 2. **Créer et activer un environnement virtuel** :
     ```bash
