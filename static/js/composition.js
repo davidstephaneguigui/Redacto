@@ -1,25 +1,44 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // --- 1. GESTION DU VIVIER ---
+    console.log("Script composition chargé !");
+    
     const vivier = document.getElementById('vivier-container');
     const actionsVivier = document.getElementById('actions-vivier');
-    
-    // Masquer les actions si le vivier est masqué au chargement
-    if (vivier && vivier.style.display === 'none') {
-        if (actionsVivier) actionsVivier.style.display = 'none';
+    const btnToggle = document.getElementById('btn-toggle-vivier');
+
+    if (!vivier) {
+        console.error("Erreur : élément vivier-container introuvable.");
+        return;
     }
 
-    // La fonction toggleVivier doit être globale pour être appelée par le bouton HTML
-    window.toggleVivier = function() {
-        const btn = document.getElementById('btn-toggle-vivier');
-        if (vivier.style.display === 'none') {
-            vivier.style.display = 'block';
-            if (actionsVivier) actionsVivier.style.display = 'flex';
-            btn.innerHTML = 'Masquer le vivier';
-        } else {
+    function setVivierState(estMasque) {
+        if (estMasque) {
             vivier.style.display = 'none';
             if (actionsVivier) actionsVivier.style.display = 'none';
-            btn.innerHTML = 'Afficher le vivier';
+            if (btnToggle) btnToggle.textContent = 'Afficher le vivier';
+        } else {
+            vivier.style.display = 'block';
+            if (actionsVivier) actionsVivier.style.display = 'flex';
+            if (btnToggle) btnToggle.textContent = 'Masquer le vivier';
         }
+    }
+
+    // Au chargement, on récupère l'état (s'il n'existe pas, on affiche par défaut)
+    const etatSauvegarde = localStorage.getItem('vivierMasque');
+    console.log("Etat sauvegardé au chargement :", etatSauvegarde);
+    
+    // Si l'état sauvegardé est 'true', on masque. Sinon on laisse l'affichage par défaut du serveur.
+    if (etatSauvegarde === 'true') {
+        setVivierState(true);
+    }
+
+    // Fonction globale appelée par le bouton
+    window.toggleVivier = function() {
+        console.log("Clic sur le bouton toggle");
+        const etatActuel = localStorage.getItem('vivierMasque') === 'true';
+        const nouvelEtat = !etatActuel;
+        
+        localStorage.setItem('vivierMasque', nouvelEtat);
+        setVivierState(nouvelEtat);
     };
 
     // --- 2. GESTION DU "TOUT SÉLECTIONNER" ---

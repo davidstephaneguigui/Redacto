@@ -104,3 +104,8 @@ del.rel-rouge { color: #cc0000; text-decoration: line-through; }
 ins.rel-rouge { color: #cc0000; text-decoration: underline; }
 del.rel-vert { color: #2e7d32; text-decoration: line-through; }
 ins.rel-vert { color: #2e7d32; text-decoration: underline; }
+
+/* Laisse un espace au-dessus de la page ciblée pour ne pas la coller tout en haut */
+.bloc-page {
+    scroll-margin-top: 80px; /* Ajustez cette valeur (80px, 100px...) selon la hauteur de votre en-tête */
+}

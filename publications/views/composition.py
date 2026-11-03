@@ -335,30 +335,56 @@ def renvoyer_a_selection(request):
 def modifier_avis_image(request, image_id):
     image = get_object_or_404(Image, pk=image_id)
     nouvel_avis = request.POST.get("avis")
+    nouvelle_taille = request.POST.get("taille")
     commentaire = request.POST.get("commentaire", "").strip()
 
+    # 1. Mise à jour de la taille
+    if nouvelle_taille in dict(Image.TAILLES):
+        image.taille = nouvelle_taille
+        image.save()
+
+    # 2. Mise à jour de l'avis
     if nouvel_avis in ["favorable", "defavorable", "a_remplacer"]:
         image.avis_editeur = nouvel_avis
-        
-        # Si l'éditeur clique sur "Retirer" (defavorable), on détache l'image de l'article
         if nouvel_avis == "defavorable":
             image.article = None
-            
         if commentaire:
             image.commentaire_editeur = commentaire
         image.save()
         
-        # On adapte le message selon l'action
         if nouvel_avis == "defavorable":
-            messages.info(request, "L'image a été retirée de l'article et placée dans le dossier Images.")
+            messages.info(request, "L'image a été retirée de l'article.")
         else:
             messages.success(request, "L'avis sur l'image a été mis à jour.")
             
-    else:
-        messages.error(request, "Avis invalide.")
+    elif nouvelle_taille:
+        messages.success(request, f"Taille passée en {image.get_taille_display().lower()}.")
 
-    # On redirige vers la page d'où l'on vient
+    # 3. RECALCUL DES COMPTEURS (On le fait TOUJOURS si l'image est liée à un article)
+    if image.article:
+        placements = PageArticle.objects.filter(article=image.article)
+        for placement in placements:
+            page = placement.page
+            # On récupère toutes les images uniques des articles de cette page
+            images_page = Image.objects.filter(
+                article__placements__page=page, 
+                avis_editeur__in=['favorable', 'en_attente']
+            ).distinct()
+            
+            page.petites_illustrations = images_page.filter(taille="petite").count()
+            page.moyennes_illustrations = images_page.filter(taille="moyenne").count()
+            page.grandes_illustrations = images_page.filter(taille="grande").count()
+            page.save()
+            messages.info(request, f"Compteurs de la page {page.numero_page} synchronisés.")
+
+    # --- NOUVELLE LOGIQUE DE REDIRECTION ---
     referer = request.META.get('HTTP_REFERER')
     if referer:
-        return redirect(referer)
+        # On coupe l'URL au niveau du # pour éviter d'avoir des ancres en double
+        base_url = referer.split('#')[0]
+        page_id = request.POST.get("page_id")
+        if page_id:
+            return redirect(f"{base_url}#page-{page_id}")
+        return redirect(base_url)
+        
     return redirect("publications:composition")

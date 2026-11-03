@@ -1,0 +1,13 @@
+.diff-journal {
+    white-space: normal;
+}
+.diff-journal p {
+    margin: 0 0 0.6em 0;
+}
+.diff-journal p:last-child {
+    margin-bottom: 0;
+}
+
+#zone-annotation {
+    scroll-margin-top: 5rem; /* à ajuster selon la hauteur de l'en-tête */
+}

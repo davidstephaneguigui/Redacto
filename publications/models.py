@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date, timedelta
 
 class Rubrique(models.Model):
     nom = models.CharField(max_length=100, verbose_name="Nom de la rubrique")
@@ -51,6 +52,19 @@ class Publication(models.Model):
     @classmethod
     def __str__(self):
         return f"N°{self.numero} ({self.annee})"
+
+    @property
+    def date_parution(self):
+        """
+        Calcule la date de parution (le vendredi) en fonction du numéro.
+        Référence : N°3038 = Vendredi 23 octobre 2026.
+        """
+        date_reference = date(2026, 10, 23)
+        numero_reference = 3038
+        
+        # Calcul de la différence de semaines
+        semaines_ecart = self.numero - numero_reference
+        return date_reference + timedelta(weeks=semaines_ecart)
 
 class Page(models.Model):
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE, related_name="pages")

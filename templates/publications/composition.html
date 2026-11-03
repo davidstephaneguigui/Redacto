@@ -269,13 +269,15 @@
                                         <!-- LIGNE 2 : Image à gauche + Statut/Boutons à droite -->
                                         {% if article.images.exists %}
                                             {% with img=article.images.first %}
-                                                <div style="background: #fff; border: 1px solid #eee; padding: 0.4rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem;">
+                                                <div style="background: #fff; border: 1px solid #eee; padding: 0.4rem; border-radius: 4px; display: flex; align-items: flex-start; gap: 0.5rem;">
                                                     
                                                     <!-- Image à gauche -->
                                                     <img src="{{ img.fichier.url }}" alt="Image" style="max-width: 60px; max-height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">
                                                     
                                                     <!-- Statut et Boutons empilés à droite -->
-                                                    <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                                    <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
+                                                        
+                                                        <!-- Statut (une seule fois) -->
                                                         <span style="font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; width: fit-content;
                                                             {% if img.avis_editeur == 'en_attente' %}background: #eee; color: #666;
                                                             {% elif img.avis_editeur == 'favorable' %}background: #dcfce7; color: #166534;
@@ -284,19 +286,36 @@
                                                             {{ img.get_avis_editeur_display }}
                                                         </span>
                                                         
+                                                        <!-- Choix de la taille (bien aligné) -->
+                                                        <form method="post" action="{% url 'publications:modifier_avis_image' img.pk %}" style="margin: 0; display: flex; gap: 0.3rem; align-items: center;">
+                                                            {% csrf_token %}
+                                                            <input type="hidden" name="page_id" value="{{ page.pk }}">
+                                                            <label style="font-size: 0.7rem; color: #666; margin: 0; white-space: nowrap;">Taille :</label>
+                                                            <select name="taille" style="font-size: 0.7rem; padding: 1px; border: 1px solid #ccc;">
+                                                                <option value="petite" {% if img.taille == 'petite' %}selected{% endif %}>Petite</option>
+                                                                <option value="moyenne" {% if img.taille == 'moyenne' %}selected{% endif %}>Moyenne</option>
+                                                                <option value="grande" {% if img.taille == 'grande' %}selected{% endif %}>Grande</option>
+                                                            </select>
+                                                            <button type="submit" class="btn btn-sm" style="padding: 2px 6px; font-size: 0.65rem; background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;">Appliquer</button>
+                                                        </form>
+
+                                                        <!-- Boutons d'avis -->
                                                         <div style="display: flex; gap: 0.3rem;">
                                                             <form method="post" action="{% url 'publications:modifier_avis_image' img.pk %}" style="margin: 0;">
                                                                 {% csrf_token %}
+                                                                <input type="hidden" name="page_id" value="{{ page.pk }}">
                                                                 <input type="hidden" name="avis" value="favorable">
                                                                 <button type="submit" class="btn btn-sm" style="padding: 2px 6px; font-size: 0.65rem; background: #dcfce7; color: #166534; border: 1px solid #86efac;">✅ OK</button>
                                                             </form>
                                                             <form method="post" action="{% url 'publications:modifier_avis_image' img.pk %}" style="margin: 0;">
                                                                 {% csrf_token %}
+                                                                <input type="hidden" name="page_id" value="{{ page.pk }}">
                                                                 <input type="hidden" name="avis" value="defavorable">
-                                                                    <button type="submit" class="btn btn-sm" style="padding: 2px 6px; font-size: 0.65rem; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;">❌ Retirer</button>
+                                                                <button type="submit" class="btn btn-sm" style="padding: 2px 6px; font-size: 0.65rem; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;">❌ Retirer</button>
                                                             </form>
                                                             <form method="post" action="{% url 'publications:modifier_avis_image' img.pk %}" style="margin: 0;">
                                                                 {% csrf_token %}
+                                                                <input type="hidden" name="page_id" value="{{ page.pk }}">
                                                                 <input type="hidden" name="avis" value="a_remplacer">
                                                                 <button type="submit" class="btn btn-sm" style="padding: 2px 6px; font-size: 0.65rem; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">🔄 Remplacer</button>
                                                             </form>

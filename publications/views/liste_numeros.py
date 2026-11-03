@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.utils import timezone
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime, time  # <-- AJOUTER datetime et time
 from accounts.decorators import role_required
-from ..models import Publication, Page
+from ..models import Publication
 
 # On définit une date de référence pour la numérotation des publications
 DATE_REFERENCE = date(2026, 10, 19)  # Lundi de la semaine 43 de l'année 2026 : numéro 3038.
@@ -19,11 +19,27 @@ def numero_pour_semaine(d):
 def numero_semaine_actuelle():
     return numero_pour_semaine(date.today())
 
+def cloturer_automatiquement():
+    """
+    Clôture automatiquement les numéros dont la date de parution 
+    (vendredi à 9h00) est dépassée.
+    """
+    maintenant = timezone.now()
+    # On récupère tous les numéros qui ne sont pas encore publiés
+    publications = Publication.objects.exclude(statut="publie")
+    
+    for pub in publications:
+        # On combine la date de parution (vendredi) avec 9h00 du matin
+        date_limite = timezone.make_aware(datetime.combine(pub.date_parution, time(9, 0)))
+        
+        # Si la date limite est dépassée, on force le statut à 'publie'
+        if maintenant >= date_limite:
+            pub.statut = "publie"
+            pub.save()
 
 @role_required("editeur", "membre_redaction", "admin")
 def liste_publications(request):
     return render(request, "publications/liste.html")
-
 
 @role_required("editeur", "admin")
 @require_POST
@@ -43,7 +59,6 @@ def cloturer_numero(request):
     else:
         messages.error(request, "Aucun numéro en cours à clôturer.")
     return redirect("publications:composition")
-
 
 @role_required("editeur", "admin")
 @require_POST
@@ -66,22 +81,25 @@ def decloturer_numero(request, pk):
     messages.success(request, f"Le numéro n°{publication.numero} a été rouvert en cours.")
     return redirect("publications:numeros")
 
-
 @role_required("editeur", "admin")
 @require_POST
 def creer_numero(request):
     dernier_num = Publication.objects.all().order_by('-numero').first()
     prochain_num = (dernier_num.numero + 1) if dernier_num else 3038
     
+    # On calcule la date du vendredi correspondant
+    date_reference = date(2026, 10, 23)
+    semaines_ecart = prochain_num - 3038
+    date_cible = date_reference + timedelta(weeks=semaines_ecart)
+    
     nouvelle_pub = Publication.objects.create(
         numero=prochain_num,
-        annee=2026, # À rendre dynamique plus tard
+        annee=date_cible.year, # On met la bonne année !
         statut="gele",
-        date=timezone.localdate()
+        date=date_cible # On enregistre la vraie date
     )
     messages.success(request, f"Le numéro n°{prochain_num} a été créé (Gelé). Vous pouvez maintenant y placer des articles.")
     return redirect(f"/publications/composition/?numero_id={nouvelle_pub.pk}")
-
 
 @role_required("editeur", "admin")
 @require_POST
@@ -102,9 +120,11 @@ def reprendre_numero(request, pk):
     messages.success(request, f"Le numéro n°{pub_cible.numero} est maintenant en cours de bouclage.")
     return redirect(f"/publications/composition/?numero_id={pub_cible.pk}")
 
-
 @role_required("editeur", "admin")
 def liste_numeros(request):
+    # On vérifie les clôtures automatiques
+    cloturer_automatiquement()
+    
     num_central = Publication.objects.filter(statut="en_cours").first()
     num_ref = num_central.numero if num_central else numero_semaine_actuelle()
     
@@ -123,9 +143,11 @@ def liste_numeros(request):
         "max_num": max_num,
     })
 
-
 @role_required("editeur", "admin")
 def archives_numeros(request):
+    # On vérifie aussi les clôtures automatiques ici
+    cloturer_automatiquement()
+
     num_central = Publication.objects.filter(statut="en_cours").first()
     num_ref = num_central.numero if num_central else numero_semaine_actuelle()
     

@@ -51,13 +51,13 @@
              — <strong>{{ version.nombre_signes }} signes</strong>
         </p>
 
-        <p class="bascule-mode">
+        <p class="bascule-mode" id="zone-annotation" style="margin: 0 !important; margin-bottom: 0.5rem !important;">
             {% if mode == "diff" %}
                 Mode actuel : <strong>différences</strong> —
-                <a href="?version={{ version.pk }}">Voir le texte propre</a>
+                <a href="?version={{ version.pk }}#zone-annotation">Voir le texte propre</a>
             {% else %}
                 Mode actuel : <strong>texte propre</strong> —
-                <a href="?version={{ version.pk }}&mode=diff">Voir les différences</a>
+                <a href="?version={{ version.pk }}&mode=diff#zone-annotation">Voir les différences</a>
             {% endif %}
         </p>
 
@@ -66,7 +66,7 @@
         {% endif %}
 
         <!-- ZONE DE TEXTE AVEC FLEXBOX -->
-        <div class="texte-version" style="display: flex; gap: 1.5rem; align-items: flex-start; padding: 1rem; background: #f9f9f9; border-radius: 8px;">
+        <div class="texte-version" style="display: flex; gap: 1.2rem; align-items: flex-start; padding: 1rem; background: #f9f9f9; border-radius: 8px; margin-top: 0.5rem;">
             
             <!-- L'image à gauche -->
             {% if article.images.exists %}

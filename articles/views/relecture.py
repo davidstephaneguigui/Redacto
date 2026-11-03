@@ -49,6 +49,7 @@ def annoter_article(request, pk, version_id=None):
 
         if mode == "propre":
             texte_affiche = version.contenu
+            texte_affiche = texte_affiche.strip()
         else:
             if version.parent:
                 texte_parent = version.parent.contenu
@@ -454,7 +455,7 @@ def telecharger_pdf_version(request, pk, version_id):
 
     contenu_brut = version.contenu.replace("\r\n", "\n")
     paragraphes = contenu_brut.split("\n")
-    
+        
     contenu_html = "".join([f"<p>{typographier(p)}</p>" for p in paragraphes if p.strip() != ""])
     
     context = {
